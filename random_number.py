@@ -1,4 +1,4 @@
-def Fibbonaci_LFSR_Period():
+def Fibbonacci_LFSR_Period():
     start_state = 1 << 15 | 1
     lfsr = start_state
     period = 0
@@ -13,7 +13,7 @@ def Fibbonaci_LFSR_Period():
             break
 
 
-def Fibbonaci_LFSR_Rand(start_state):
+def Fibbonacci_LFSR_Rand(start_state):
     lfsr = start_state
     
     #taps: 16 15 13 4; feedback polynomial: x^16 + x^15 + x^13 + x^4 + 1
@@ -22,5 +22,5 @@ def Fibbonaci_LFSR_Rand(start_state):
     return lfsr
        
 
-rndNum = Fibbonaci_LFSR_Rand(32773)
+rndNum = Fibbonacci_LFSR_Rand(32773)
 print(rndNum)
