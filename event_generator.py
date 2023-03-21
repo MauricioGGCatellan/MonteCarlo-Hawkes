@@ -1,9 +1,16 @@
 from random_sample import inverse_transform_sampling, acceptance_rejection_sampling
 import math
 
-#mi = [1,2,3,4]
-beta= [[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4]]
-X = [[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4]] 
+#mi, alfa e beta: não sei qual usar (obs: são compostos por nros positivos). Seguem a regra:
+#μm > 0, αmn ≥ 0, βmn ≥ 0, ρ(Γ) < 1, Γ = {alfa/beta}mxn
+#mi = [0.08, 0,08, 0.05, 0.05]
+#alfa = [[0 , 0.4, 0, 0],[0.4, 0,0,0],[0,0, 0.5, 0.3],[0,0,0.3,0.5]]
+#beta= [[0.6,0.6,0.6,0.6],[0.6,0.6,0.6,0.6],[1.2,1.2,1.2,1.2],[1.2,1.2,1.2,1.2]]
+
+#X: utilizar zerado.
+#X = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]] 
+
+#qa, qb,sbM, saM, sbL, saL: pegar do arquivo do trab do amigo
 
 def app_function(mi, beta, X, s, k=4):
     #faz uma conta que retorna lambda_bar
@@ -29,4 +36,34 @@ def event_generator(mi, beta, X):
         if(k >= 0):
             return [s, k]
 
+def monte_carlo_mean_price(qa, qb,sbM, saM, sbL, saL, mi, alfa, beta, Xt, N):
+    y = 0
+    Qa, Qb = []
+
+    for _ in range(1, N):
+        Qa[0] = qa
+        Qb[0] = qb
+        X = Xt
+        t = 0
+        while(Qa > 0 and Qb > 0):
+            [s,k] = event_generator(mi, beta, X)
+            if(k == 1):
+                Qb[t + s] = Qb[t] - sbM
+            elif(k == 2):
+                Qb[t + s] = Qb[t] + sbL
+            elif(k == 3):
+                Qa[t + s] = Qa[t] - saM
+            else:
+                Qa[t + s] = Qa[t] + saL
+            for m in range(1, 4):
+                for n in range(1, 4):
+                    X[m][n] = X[m][n] * math.exp(-beta[m][n]-s)
+                if(k == n):
+                    X[m][n] =  X[m][n] + alfa[m][n]
+            
+            t = t + s
+        if(Qa[t] <= 0):
+            y = y + 1
+    
+    return y/N
 
