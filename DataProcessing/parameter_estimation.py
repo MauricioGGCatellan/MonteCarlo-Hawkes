@@ -1,4 +1,5 @@
 import math
+import scipy.optimize
 
 #n1 - decremento compra
 #n3 - decremento venda
@@ -46,7 +47,9 @@ def sumParc3(mum, t, tm, alfam, betam):
 
 
 def func (teta):
-    [mu, alfa, beta] = teta
+    mu = teta[0:4]
+    alfa = [teta[4:8], teta[8:12], teta[12:16], teta[16:20]]
+    beta = [teta[20:24], teta[24:28], teta[28:32], teta[32:36]]
     
     #Baseado em limitorderbook_process.py
     T = 60                  
@@ -75,6 +78,49 @@ mu = [0.08, 0.08, 0.05, 0.05]
 alfa = [[0 , 0.4, 0, 0],[0.4, 0,0,0],[0,0, 0.5, 0.3],[0,0,0.3,0.5]]
 beta= [[0.6,0.6,0.6,0.6],[0.6,0.6,0.6,0.6],[1.2,1.2,1.2,1.2],[1.2,1.2,1.2,1.2]]
 
-print(func([mu, alfa, beta]))
+oneDVars = [
+            mu[0], mu[1], mu[2], mu[3], 
+            alfa[0][0], alfa[0][1], alfa[0][2], alfa[0][3],
+            alfa[1][0], alfa[1][1], alfa[1][2], alfa[1][3],
+            alfa[2][0], alfa[2][1], alfa[2][2], alfa[2][3],
+            alfa[3][0], alfa[3][1], alfa[3][2], alfa[3][3],
+            beta[0][0], beta[0][1], beta[0][2], beta[0][3],
+            beta[1][0], beta[1][1], beta[1][2], beta[1][3],
+            beta[2][0], beta[2][1], beta[2][2], beta[2][3],
+            beta[3][0], beta[3][1], beta[3][2], beta[3][3]
+            ]
+
+oneDBounds = [
+                (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+                (0, 1), (0, 1), (0, 1), (0, 1),
+             ]
+
+oneDBounds2 = [
+                (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+                (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
+             ]
 
 #Minimizar func
+res = scipy.optimize.minimize(func, oneDVars, bounds=oneDBounds2)
+if(res.success):
+    print(res)
+    print("Input otimizado: ")
+    print(res.x)
+else:
+    print(res.message)
+
+#Falta testar o resultado verificando o raio espectral!
