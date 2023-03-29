@@ -1,9 +1,9 @@
 import math
 import scipy.optimize
+import numpy.linalg
 
 #n1 - decremento compra
 #n3 - decremento venda
-
 #n2 - incremento compra
 #n4 - incremento venda
 
@@ -72,7 +72,6 @@ def func (teta):
 
     return -1*res
 
-
 #Valores de teste
 mu = [0.08, 0.08, 0.05, 0.05]
 alfa = [[0 , 0.4, 0, 0],[0.4, 0,0,0],[0,0, 0.5, 0.3],[0,0,0.3,0.5]]
@@ -123,4 +122,23 @@ if(res.success):
 else:
     print(res.message)
 
-#Falta testar o resultado verificando o raio espectral!
+teta = res.x
+
+mu = teta[0:4]
+alfa = [teta[4:8], teta[8:12], teta[12:16], teta[16:20]]
+beta = [teta[20:24], teta[24:28], teta[28:32], teta[32:36]]
+
+#Raio espectral de gama (maxEig) deve ser menor que 1
+gama = []
+for m in range(4):
+    gama.append([alfa[m][n]/beta[m][n] for n in range(4)])
+print(gama)
+
+eig = numpy.linalg.eigvals(gama)
+
+maxEig = 0
+for val in eig:
+    if(abs(val) > maxEig):
+        maxEig = abs(val)
+
+print(maxEig)
