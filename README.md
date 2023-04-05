@@ -6,16 +6,16 @@ O objetivo do trabalho é a implementação em hardware de um modelo estocástic
 
 O repositório se divide da seguinte forma:
 
-**Data Processing**
+### Data Processing
 Processamento de dados de livro de oferta limitado extraídos de https://www.kaggle.com/datasets/praanj/limit-orderbook-data .
 A partir dele, obtêm-se os parâmetros utilizados no modelo estocástico de previsão.
 **
 
-**Hardware Monte Carlo**
+### Hardware Monte Carlo
 Implementação em Hardware da simulação de Monte Carlo do Processo de Hawkes, utilizando como entrada os parâmetros obtidos em Data Processing e o número de simulações, e dando como saída a probabilidade do preço subir no próximo evento de mudança de preço.
 
 Implementação feita em Verilog, projetada para funcionar numa FPGA Cyclone IV E.
 
-**MonteCarlo**
+### MonteCarlo
 Implementação em software da simulação de Monte Carlo do processo de Hawkes, feita a fim de ser comparada com a implementação em hardware.
 
