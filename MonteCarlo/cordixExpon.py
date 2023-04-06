@@ -11,11 +11,11 @@ v7 = math.log(1 - 2**-7)
 
 v = [v0, v1, v2, v3, v4, v5, v6, v7]
 
-x0 = 0 #Range de x0: -1.24 a 0
+x0 = -0.5 #Range de x0: -1.24 a 0
 x = x0 
 y = 1
 
-for i in range(8):
+for i in range(4):
     D = x - v[i]
     if(D <= 0):
         x = D
