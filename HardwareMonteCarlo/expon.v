@@ -12,16 +12,27 @@ module expon(
   reg [1:0] address;
   reg [1:0] next_address;
   reg [9:0] lookupLn;
+  reg [9:0] curr_lookup;
   reg [9:0] y_sum;
   reg [18:0] multp_y;
   reg advanceAddr;
   
   always @(posedge clk)
     begin
+	 if(start)
+		begin
+			address = 0;
+			x = x0;
+			y = numberOne;   //numberOne
+		  
+			advanceAddr = 0;
+			y_sum = 0; 
+		end
+		
+		done = (~start)&address[1]&address[0];
+		
       if(!done)
       begin
-		  done = (~start)&address[1]&address[0];
-		  
 		  next_address[0] = ~address[0];   //next_address = address + 1
 		  next_address[1] = address[1]^address[0];
 		  
@@ -29,44 +40,29 @@ module expon(
 		  begin
 			address = next_address;
 		  end
-		end
-    end
-	 
-	 
-	always @(posedge start)
-	begin
-		  address = 2'b00;
-		  x = x0;
-		  y = 10'b0100000000;   //numberOne
-		  done = 0;
-		  advanceAddr = 0;
-		  y_sum = 10'b0000000000;  //numberOne
-	end
-  
-  always @(address)
-    begin
-      case(address)
-		  2'b00: lookupLn = 10'b0111111111; //Maior positivo
-        2'b01: lookupLn = 10'b0010110001;//10'b1101001111;  //Complemento de 2 de 10'b0010110001 (v0 = -0.6931; //ln(0.5))
-        2'b10: lookupLn = 10'b0001001010;//10'b1110110110;  //Complemento de 2 de 0001001010 (v1 = -0.2877;   //ln(0.75))
-        2'b11: lookupLn = 10'b0000100010;//10'b1111011110;	 //Complemento de 2 de 0000100010 (v2 = -0.1335;   //ln(0.875))
-      endcase
+		  
+		  case(address)
+			  2'b00: lookupLn = 10'b0111111111; //Maior positivo
+			  2'b01: lookupLn = 10'b0010110001;//10'b1101001111;  //Complemento de 2 de 10'b0010110001 (v0 = -0.6931; //ln(0.5))
+			  2'b10: lookupLn = 10'b0001001010;//10'b1110110110;  //Complemento de 2 de 0001001010 (v1 = -0.2877;   //ln(0.75))
+			  2'b11: lookupLn = 10'b0000100010;//10'b1111011110;	 //Complemento de 2 de 0000100010 (v2 = -0.1335;   //ln(0.875))
+		  endcase	
 		
+		curr_lookup = lookupLn;
 		D = x + lookupLn;
 		
-		y_sum = y_sum | (numberOne >> address) & ~numberOne; 
-      if(D[9] || D==10'b0000000000)
+		y_sum = y_sum | ((numberOne >> address) & ~numberOne); 
+      if(D[9] || D==0)
       begin
       	x = D;
 			multp_y = y*y_sum;
       	y = multp_y[17:8]; //15 é 0.5 (parece certo)
       end
-		   advanceAddr = 1'b1;
+		   advanceAddr = 1;
+		end
     end
-
+	 
 endmodule
-
-
 
 `timescale 1 ns/10 ps  // time-unit = 1 ns, precision = 10 ps
 
@@ -81,7 +77,7 @@ module expon_tb;
 	
 	localparam SF = 2.0**-8.0;
 	 
-  	//O seguinte módulo apenas calcula ln para x entre 0.5 e 1.
+  	//O seguinte módulo apenas calcula expon para x entre -1.24 e 0.
   	expon UUT (.x0(x0), .clk(clk), .start(start), .y(y), .done(done));
 	 
 	always #5 clk = ~clk;
@@ -96,14 +92,13 @@ module expon_tb;
 										
       clk = 0;
       start = 1;
-		#5
+		#6
 		start= 0;
       #60
       
       $display("[$display] data=%4f", $itor(y*SF));  
     
     end
-    //$stop;   // end of simulation
 
 endmodule
          
