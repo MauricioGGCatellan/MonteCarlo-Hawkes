@@ -2,11 +2,6 @@ import math
 import scipy.optimize
 import numpy.linalg
 
-#n1 - decremento compra
-#n3 - decremento venda
-#n2 - incremento compra
-#n4 - incremento venda
-
 def Rmn(k, betamn, tm, tn):
     parc2R = 0
     i = 0
@@ -52,14 +47,15 @@ def func (teta):
     beta = [teta[20:24], teta[24:28], teta[28:32], teta[32:36]]
     
     #Baseado em limitorderbook_process.py
-    T = 60                  
-    t = [[1, 3, 5, 7, 9, 10, 11, 12, 14, 15, 18, 19, 20, 21, 22, 23, 24, 25, 27, 29, 32, 33, 35, 38, 40, 41,    #Descida Bid
+    T = 60           #Janela de tempo
+    t = [[1, 3, 5, 7, 9, 10, 11, 12, 14, 15, 18, 19, 20, 21, 22, 23, 24, 25, 27, 29, 32, 33, 35, 38, 40, 41,    #Tempos de Descida Bid
            43, 44, 45, 46, 47, 48, 49, 50, 52, 53, 54, 56, 57, 58, 59],
-            [2, 4, 6, 8, 13, 16, 17, 26, 28, 30, 31, 34, 36, 37, 39, 42, 51, 55],                             #Subida Bid
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,    #Descida Ask
+            [2, 4, 6, 8, 13, 16, 17, 26, 28, 30, 31, 34, 36, 37, 39, 42, 51, 55],                             #Tempos de Subida Bid
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,    #Tempos de Descida Ask
           31, 32, 33, 35, 37, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 58, 59],
-          [11, 14, 18, 34, 36, 38, 43, 53, 57]]                                                               #Subida Ask
-                                                                                                             
+          [11, 14, 18, 34, 36, 38, 43, 53, 57]]                                                               #Tempos de Subida Ask
+    ###
+
     res = 0
     for m in range(4):
         tm = t[m]
@@ -72,7 +68,7 @@ def func (teta):
 
     return -1*res
 
-#Valores de teste
+#Valores iniciais razoáveis
 mu = [0.08, 0.08, 0.05, 0.05]
 alfa = [[0 , 0.4, 0, 0],[0.4, 0,0,0],[0,0, 0.5, 0.3],[0,0,0.3,0.5]]
 beta= [[0.6,0.6,0.6,0.6],[0.6,0.6,0.6,0.6],[1.2,1.2,1.2,1.2],[1.2,1.2,1.2,1.2]]
@@ -91,18 +87,6 @@ oneDVars = [
 
 oneDBounds = [
                 (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-                (0, 1), (0, 1), (0, 1), (0, 1),
-             ]
-
-oneDBounds2 = [
-                (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf), (0.0000001, math.inf),
                 (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
                 (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
                 (0, math.inf), (0, math.inf), (0, math.inf), (0, math.inf),
@@ -114,7 +98,7 @@ oneDBounds2 = [
              ]
 
 #Minimizar func
-res = scipy.optimize.minimize(func, oneDVars, bounds=oneDBounds2)
+res = scipy.optimize.minimize(func, oneDVars, bounds=oneDBounds)
 if(res.success):
     print(res)
     print("Input otimizado: ")
@@ -132,7 +116,6 @@ beta = [teta[20:24], teta[24:28], teta[28:32], teta[32:36]]
 gama = []
 for m in range(4):
     gama.append([alfa[m][n]/beta[m][n] for n in range(4)])
-print(gama)
 
 eig = numpy.linalg.eigvals(gama)
 
@@ -141,4 +124,7 @@ for val in eig:
     if(abs(val) > maxEig):
         maxEig = abs(val)
 
-print(maxEig)
+if(maxEig < 1):
+    print("Otimização válida")
+else:
+    print("Otimização inválida")

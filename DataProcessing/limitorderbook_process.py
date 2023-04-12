@@ -31,21 +31,17 @@ def calculate_upanddown_mean(df: pd.DataFrame):
 dec_test = np.loadtxt('./Test_Dst_NoAuction_DecPre_CF_9.txt')
 
 dfnp = dec_test[:40, :].T
-
 df = pd.DataFrame(dfnp)
 
-#print(df.head())
 
-dfAskPricesLv1 = df.loc[:, 0]
+dfAskPricesLv1 = df.loc[:MEAN_NUM_ROWS - 1, 0]
 dfAskVolumesLv1 = df.loc[:MEAN_NUM_ROWS - 1, 1]
 
-dfBidPricesLv1 = df.loc[:, 2]
+dfBidPricesLv1 = df.loc[:MEAN_NUM_ROWS - 1, 2]
 dfBidVolumesLv1 = df.loc[:MEAN_NUM_ROWS - 1, 3]
 
-#print(dfAskPricesLv1.head())
-#print(dfAskVolumesLv1.head())
-#print(dfBidPricesLv1.head())
-#print(dfBidVolumesLv1.head())
+print(dfAskVolumesLv1)
+print(dfBidVolumesLv1)
 
 dfAskVolumesLv1.reset_index()
 dfBidVolumesLv1.reset_index()
