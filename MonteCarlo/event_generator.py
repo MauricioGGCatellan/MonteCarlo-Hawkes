@@ -6,9 +6,10 @@ def event_generator(mi, beta, X):
 
     while True:
         lambda_bar = app_function(mi, beta, X, s)
-
+        
         w = inverse_transform_sampling(lambda_bar)
         s = s + w
+
         k = acceptance_rejection_sampling(lambda_bar, mi, beta, X, s)
         if(k >= 1):
             return [s, k]
@@ -23,6 +24,7 @@ def monte_carlo_mean_price(qa, qb,sbM, saM, sbL, saL, mi, alfa, beta, Xt, N):
         t = [0]
         while(Qa[-1] > 0 and Qb[-1] > 0):
             [s,k] = event_generator(mi, beta, X)
+            
             if(k == 1):
                 Qb.append(Qb[-1] - sbM)  
             elif(k == 2):
@@ -33,9 +35,9 @@ def monte_carlo_mean_price(qa, qb,sbM, saM, sbL, saL, mi, alfa, beta, Xt, N):
                 Qa.append(Qa[-1] + saL)
             for m in range(1, 4):
                 for n in range(1, 4):
-                    X[m][n] = X[m][n] * math.exp(-beta[m][n]-s)
-                if(k == n):
-                    X[m][n] =  X[m][n] + alfa[m][n]
+                    X[m][n] = X[m][n] * math.exp(-beta[m][n]*s)
+                    if(k == n):
+                        X[m][n] =  X[m][n] + alfa[m][n]
             
             t.append(t[-1] + s)
         if(Qa[-1] <= 0):
@@ -50,7 +52,7 @@ beta= [[0.827,0.661,0.849,0.608],[0.700,0.6,0.6,0.6],[1.2,1.2,1.184,1.192],[1.2,
 X = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]       #Estado inicial nulo
 ###
 
-#Valores obtidos de libitorderbook_process.py
+#Valores obtidos de limitorderbook_process.py
 saL = 0.001951
 saM = 0.000351
 sbL = 0.002775

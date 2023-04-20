@@ -14,13 +14,15 @@ def app_function(mi, beta, X, s, k=4):
 
 #Função utilizada na amostragem do s (pulo aleatório)
 def inverse_transform_sampling(lambda_bar):
-    u = random.randint(0, 65536)/65536
+    u = random.randint(1, 65536)/65536
+
     w = -1*math.log(u)/lambda_bar
     return w
 
 #Função utilizada na amostragem de k (evento aleatório dentre os 4 possíveis)
 def acceptance_rejection_sampling(lambda_bar, mi, beta, X, s):
-    D = random.randint(0, 65536)/65536
+    D = random.randint(1, 65536)/65536
+
     if(D*lambda_bar <= app_function(mi, beta, X, s)):
         k = 1
 

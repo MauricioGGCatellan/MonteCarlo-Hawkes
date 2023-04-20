@@ -22,7 +22,7 @@ always @(posedge clk or negedge rst_n)
   if(!rst_n)
   begin
     data <= 5'h1f;
-  	 out <= 16'h1f;
+  	 out <= 8'hff;
   end
   else
   begin

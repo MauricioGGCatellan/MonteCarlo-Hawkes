@@ -12,7 +12,6 @@ module expon(
   reg [1:0] address;
   reg [1:0] next_address;
   reg [9:0] lookupLn;
-  reg [9:0] curr_lookup;
   reg [9:0] y_sum;
   reg [18:0] multp_y;
   reg advanceAddr;
@@ -48,7 +47,6 @@ module expon(
 			  2'b11: lookupLn = 10'b0000100010;//10'b1111011110;	 //Complemento de 2 de 0000100010 (v2 = -0.1335;   //ln(0.875))
 		  endcase	
 		
-		curr_lookup = lookupLn;
 		D = x + lookupLn;
 		
 		y_sum = y_sum | ((numberOne >> address) & ~numberOne); 
