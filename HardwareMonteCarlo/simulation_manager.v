@@ -1,7 +1,7 @@
 
-
 //Gerencia a execução de uma única simulação
 module sim_mng(
+	input [22:0] seed,
 	input [8:0] beta11, beta12, beta13, beta14, beta21, beta22, beta23, beta24,
 	input [8:0] beta31, beta32, beta33, beta34, beta41, beta42, beta43, beta44,
 	input [8:0] alfa11, alfa12, alfa13, alfa14, alfa21, alfa22, alfa23, alfa24,
@@ -20,6 +20,9 @@ wire [7:0] D2;
 
 reg rst_rand;
 
+reg [7:0] rnd1;
+reg [7:0] rnd2;
+
 reg start_st_calc;
 wire done_st_calc;
 
@@ -27,28 +30,28 @@ reg start_ev_gen;
 wire done_ev_gen;
 wire s_done_ev_gen;
 
-wire [7:0] lambda;
-reg [7:0] prev_lambda;
-reg [7:0] next_lambda;
+wire [8:0] lambda;
+reg [8:0] prev_lambda;
+reg [8:0] next_lambda;
 
 reg [1:0] k;
 reg [8:0] s;
 wire [8:0] w;
 reg [8:0] t;
 
-reg [9:0] Qa;
-reg [9:0] Qb;
+reg [18:0] Qa;
+reg [18:0] Qb;
 
 reg [2:0] state;
 
 reg [8:0] xin11, xin12, xin13, xin14, xin21, xin22, xin23, xin24, xin31, xin32, xin33, xin34, xin41, xin42, xin43, xin44;
 wire [8:0] x11, x12, x13, x14, x21, x22, x23, x24, x31, x32, x33, x34, x41, x42, x43, x44;
 
-fibonacci_lfsr_5bit rand1 (.clk(clk), .rst_n(rst_rand), .out(D1));
+fibonacci_lfsr_5bit rand1 (.seed(seed), .clk(clk), .rst_n(rst_rand), .out(D1));
 
-fibonacci_lfsr_5bit rand2 (.clk(clk), .rst_n(rst_rand), .out(D2));
+fibonacci_lfsr_5bit rand2 (.seed(seed), .clk(clk), .rst_n(rst_rand), .out(D2));
 
-state_calculator st_calc (.xin11(xin11), .xin12(xin12), .xin13(xin13), .xin14(xin14), .xin21(xin21), .xin22(xin22), .xin23(xin23), .xin24(xin24), 
+st_calc s_calc (.xin11(xin11), .xin12(xin12), .xin13(xin13), .xin14(xin14), .xin21(xin21), .xin22(xin22), .xin23(xin23), .xin24(xin24), 
 									.xin31(xin31), .xin32(xin32), .xin33(xin33), .xin34(xin34), .xin41(xin41), .xin42(xin42), .xin43(xin43), .xin44(xin44),
 									.x11(x11), .x12(x12), .x13(x13), .x14(x14), .x21(x21), .x22(x22), .x23(x23), .x24(x24), 
 									.x31(x31), .x32(x32), .x33(x33), .x34(x34), .x41(x41), .x42(x42), .x43(x43), .x44(x44),
@@ -65,8 +68,8 @@ state_calculator st_calc (.xin11(xin11), .xin12(xin12), .xin13(xin13), .xin14(xi
 									.lambda(lambda), .done(done_st_calc)
 									);
 
-event_generator ev_gen (.lambda(prev_lambda), .next_lambda(next_lambda), .start(start_ev_gen),
-								.D1(D1), .D2(D2), .clk(clk), .k(k), .s(w), .s_done(s_done_ev_gen), .done(done_ev_gen));									
+ev_gen e_gen (.lambda(prev_lambda), .next_lambda(next_lambda), .start(start_ev_gen),
+								.D1(rnd1), .D2(rnd2), .clk(clk), .k(k), .s(w), .s_done(s_done_ev_gen), .done(done_ev_gen));									
 
 /*
 task reload_x;
@@ -133,10 +136,12 @@ begin
 	xin43 = 0;
 	xin44 = 0;
 end
-
-case(state)
-3'b000:
+else
 begin
+case(state)
+3'b000:			//Termina cálculo de prev_lambda, começa cálculo de next_lambda
+begin
+	rst_rand = 1;	
 	start_st_calc = 0;
 	if(done_st_calc)
 	begin
@@ -163,22 +168,25 @@ begin
 		state = 3'b001;
 	end
 end
-3'b001:
+3'b001:				//Termina cálculo de next_lambda, começa geração de eventos
 begin
 	start_st_calc = 0;
 	if(done_st_calc)
 	begin
 		next_lambda = lambda;
+		rnd1 = D1;
+		rnd2 = D2;
 		start_ev_gen = 1;
 		state = 3'b010;
 	end
 end
-3'b010:
+3'b010:		//Se terminou e gerou k, vai para 011; se não conseguiu gerar k, volta para 000 com s atualizado
 begin
-	if(s_done_ev_gen)
+	start_ev_gen = 0;
+	if(s_done_ev_gen)								
 	begin
 		s = s + w;
-		if(done)
+		if(done_ev_gen)
 		begin
 		 k = 2'b00;
 		 
@@ -228,12 +236,14 @@ begin
 		end
 	end
 end
-3'b011:
+3'b011:			//Termina cálculo de lambda, começa a gerar eventos
 begin
 	start_st_calc = 0;
 	if(done_st_calc)
 	begin
 		next_lambda = lambda;
+		rnd1 = D1;
+		rnd2 = D2;
 		start_ev_gen = 1;
 		state = 3'b100;
 	end
@@ -299,7 +309,7 @@ end
 3'b101:							
 begin
 	start_st_calc = 0;
-	if(Qa > 0 && Qb > 0)
+	if(Qa[18] == 0 && Qa > 0 && Qb[18] == 0 && Qb > 0) //Positivo e diferente de zero
 	begin
 		s = 0;
 		k = 2'b11;	
@@ -327,7 +337,7 @@ begin
 	else
 	begin
 		done = 1;
-		if(Qa <= 0)
+		if(Qa[18] == 1 || Qa == 0) //Negativo ou 0
 		begin
 			y = 1;
 		end
@@ -339,6 +349,7 @@ begin
 end
 
 endcase
+ end
  end
  
 endmodule
@@ -401,6 +412,8 @@ module sim_mng_tb;
 	reg [7:0] sbL;
 	reg [7:0] sbM;
 	
+	reg [22:0] seed;
+	
    reg clk;
    reg start;
   
@@ -408,7 +421,7 @@ module sim_mng_tb;
 	wire done;
 	
   	//O seguinte módulo apenas calcula ln para x entre 0.5 e 1.
-  	sim_mng UUT (.beta11(beta11), .beta12(beta12), .beta13(beta13), .beta14(beta14), 
+  	sim_mng UUT (.seed(seed), .beta11(beta11), .beta12(beta12), .beta13(beta13), .beta14(beta14), 
 								.beta21(beta21), .beta22(beta22), .beta23(beta23), .beta24(beta24),
 								.beta31(beta31), .beta32(beta32), .beta33(beta13), .beta34(beta34),
 								.beta41(beta41), .beta42(beta42), .beta43(beta43), .beta44(beta44),
@@ -476,6 +489,8 @@ module sim_mng_tb;
 		
 		qa = 8'b10100_000; //20 e-4
 		qb = 8'b10001_110; //17.8 e-4
+		
+		seed = 23'b00000000000000000001100;
 		
       clk = 0;
       start = 1'b1;

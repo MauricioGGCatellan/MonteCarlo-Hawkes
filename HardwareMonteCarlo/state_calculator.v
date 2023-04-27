@@ -5,7 +5,7 @@ module st_calc(
 	input [8:0] alfa11, alfa12, alfa13, alfa14, alfa21, alfa22, alfa23, alfa24,
 	input [8:0] alfa31, alfa32, alfa33, alfa34, alfa41, alfa42, alfa43, alfa44,
 	input [7:0] mu1, mu2, mu3, mu4,
-	input [7:0] s,
+	input [8:0] s,
 	input [1:0] k,
 	input clk, start,
 	output reg done,

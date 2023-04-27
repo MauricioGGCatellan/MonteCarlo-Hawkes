@@ -10,6 +10,8 @@ def event_generator(mi, beta, X):
         w = inverse_transform_sampling(lambda_bar)
         s = s + w
 
+        print("W:", w, "s:", s) 
+
         k = acceptance_rejection_sampling(lambda_bar, mi, beta, X, s)
         if(k >= 1):
             return [s, k]
@@ -64,7 +66,7 @@ qa = 0.00200
 qb = 0.00178
 ###
 
-N = 1000
+N = 32
 
 probUp = monte_carlo_mean_price(qa, qb, sbM, saM, sbL, saL, mi, alfa, beta, X, N)
 
