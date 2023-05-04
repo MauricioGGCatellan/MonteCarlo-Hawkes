@@ -49,7 +49,7 @@ module fibonacci_lfsr_5bit_tb;
 	//localparam SF = 2.0**-8.0;
 	 
   	//O seguinte módulo gera um número aleatório de 16 bits.
-  	fibonacci_lfsr_5bit UUT (.clk(clk), .rst_n(rst_n), .out(out));
+  	fibonacci_lfsr_5bit UUT (.seed(seed), .clk(clk), .rst_n(rst_n), .out(out));
 	 
 	always #5 clk = ~clk;
     initial begin
