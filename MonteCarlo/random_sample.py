@@ -15,7 +15,7 @@ def app_function(mi, beta, X, s, k=4):
 #Função utilizada na amostragem do s (pulo aleatório)
 def inverse_transform_sampling(lambda_bar):
     u = random.randint(1, 65536)/65536
-    #u = 0.657
+    
     w = -1*math.log(u)/lambda_bar
     return w
 

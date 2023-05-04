@@ -215,7 +215,7 @@ module MonteCarloMeanPrice_tb;
 		qa = 8'b10100_000; //20 e-4
 		qb = 8'b10001_110; //17.8 e-4
 		
-		N = 8'b00011111; //31 runs
+		N = 8'b01111111; //127 runs
 		
       clk = 0;
       start = 1'b1;
@@ -225,6 +225,7 @@ module MonteCarloMeanPrice_tb;
       
       $display("[$display] data=%1b", $itor(P));  
     
+	 //Freq máxima de clock: 25.7MHz
     end
     //$stop;   // end of simulation
 

@@ -10,7 +10,7 @@ module fibonacci_lfsr_5bit(
   wire [7:0] data_next;
   reg [22:0] data;
   reg [22:0] lsdata;
-  
+ 
  assign data_next[7] = data[22]^data[1];
  assign data_next[6] = data[21]^data[0];
  assign data_next[5] = data[20]^data_next[7];
@@ -20,12 +20,11 @@ module fibonacci_lfsr_5bit(
  assign data_next[1] = data[16]^data_next[3];
  assign data_next[0] = data[15]^data_next[2];
 
- 
 always @(posedge clk or negedge rst_n)
+begin
   if(!rst_n)
   begin	 
-  
-	 data <= seed;
+	 data = seed; //23'b00000000000000000000001;
   	 out <= 8'hff;
   end
   else
@@ -36,6 +35,8 @@ always @(posedge clk or negedge rst_n)
 		 data = {lsdata[22:1], data_next[7]};
 	 end
   end
+ end
+ 
 endmodule
 
 module fibonacci_lfsr_5bit_tb;
@@ -48,7 +49,7 @@ module fibonacci_lfsr_5bit_tb;
 	//localparam SF = 2.0**-8.0;
 	 
   	//O seguinte módulo gera um número aleatório de 16 bits.
-  	fibonacci_lfsr_5bit UUT (.seed(seed), .clk(clk), .rst_n(rst_n), .out(out));
+  	fibonacci_lfsr_5bit UUT (.clk(clk), .rst_n(rst_n), .out(out));
 	 
 	always #5 clk = ~clk;
     initial begin

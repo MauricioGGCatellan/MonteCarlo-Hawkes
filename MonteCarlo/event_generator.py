@@ -1,5 +1,6 @@
 from random_sample import inverse_transform_sampling, acceptance_rejection_sampling, app_function
 import math
+import time
 
 def event_generator(mi, beta, X):
     s = 0
@@ -10,7 +11,7 @@ def event_generator(mi, beta, X):
         w = inverse_transform_sampling(lambda_bar)
         s = s + w
 
-        print("W:", w, "s:", s) 
+        #print("W:", w, "s:", s) 
 
         k = acceptance_rejection_sampling(lambda_bar, mi, beta, X, s)
         if(k >= 1):
@@ -66,8 +67,14 @@ qa = 0.00200
 qb = 0.00178
 ###
 
-N = 32
+N = 127
+
+init_time = time.perf_counter_ns()
 
 probUp = monte_carlo_mean_price(qa, qb, sbM, saM, sbL, saL, mi, alfa, beta, X, N)
+
+end_time = time.perf_counter_ns()
+
+print("Time consumed: ", (end_time - init_time)/1e6, "ms")
 
 print(probUp*100, "%")      
